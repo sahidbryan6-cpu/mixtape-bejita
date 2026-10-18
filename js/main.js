@@ -1804,9 +1804,10 @@
     const rest = [src(I.cassette), src(I.reel), src(I.bouquet), bg];
     if (I.cassetteInside) rest.push(src(I.cassetteInside));
     rest.forEach(preload);
-    // la canción empieza a cargarse ya (si ella aún no le dio play, que también la carga)
+    // la canción empieza a cargarse ya. Si ella ya le dio play (song.paused cambia al instante,
+    // audio.status no), no se toca: load() reiniciaría y detendría la reproducción.
     song.preload = 'auto';
-    if (song.readyState === 0 && audio.status === 'idle') song.load();
+    if (song.readyState === 0 && song.paused && audio.status === 'idle') song.load();
   }
 
   // Ayuda para pruebas automáticas (solo lectura)
