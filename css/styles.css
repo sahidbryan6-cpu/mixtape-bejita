@@ -499,9 +499,13 @@ p { margin: 0; }
   top: 82%;
   translate: -50% -50%;
   z-index: 200;
-  color: rgba(255, 255, 255, .8);
-  /* sombra de la especificación + un contorno suave para que se lea sobre los pétalos */
-  text-shadow: 0 1px 6px rgba(120, 40, 60, .35), 0 0 2px rgba(110, 30, 55, .55), 0 1px 12px rgba(110, 30, 55, .35);
+  /* cápsula translúcida: se lee igual sobre flores claras u oscuras */
+  padding: 5px 20px 8px;
+  border-radius: 999px;
+  background: rgba(74, 24, 48, .38);
+  box-shadow: 0 4px 18px rgba(60, 14, 34, .22), inset 0 0 0 1px rgba(255, 255, 255, .18);
+  color: #fff;
+  text-shadow: 0 1px 4px rgba(60, 10, 30, .45);
   opacity: 0;
 }
 
@@ -520,6 +524,15 @@ p { margin: 0; }
   text-shadow: 0 0 2px rgba(100, 25, 50, .6), 0 1px 6px rgba(120, 40, 60, .5), 0 2px 22px rgba(90, 30, 50, .5);
   pointer-events: none;
   opacity: 0;
+}
+/* velo suave detrás del mensaje final para que destaque sobre las flores claras */
+.wall__finale::before {
+  content: "";
+  position: absolute;
+  inset: -34px -56px;
+  z-index: -1;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(74, 24, 48, .5), rgba(74, 24, 48, .28) 55%, rgba(74, 24, 48, 0));
 }
 .wall__finale-1 { font-size: 34px; line-height: 1.2; }
 .wall__finale-2 { margin-top: 6px; font-size: 18px; }

@@ -12,6 +12,8 @@
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const isMobile = () => window.matchMedia('(max-width: 600px)').matches;
   const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+  // ?v= en cada imagen: al actualizar el sitio, el navegador no reutiliza la versión vieja que tenía guardada
+  const VER = C.images && C.images.version ? '?v=' + encodeURIComponent(C.images.version) : '';
   const fill = (str, extra = {}) =>
     String(str).replace(/\{(\w+)\}/g, (_, k) => (k in extra ? extra[k] : k === 'to' ? C.to : k === 'from' ? C.from : ''));
   const fmt = (sec) => {
@@ -167,7 +169,7 @@
   let wallEl = null, wallInner = null, wallTl = null, wallDrift = null;
 
   function flowerSrc(n) {
-    return C.images.dir + C.images.flowers + String(n).padStart(2, '0') + IMG_EXT;
+    return C.images.dir + C.images.flowers + String(n).padStart(2, '0') + IMG_EXT + VER;
   }
 
   function buildWall(origin) {
@@ -1770,7 +1772,7 @@
     const webp = await supportsWebP();
     IMG_EXT = webp ? '.webp' : '.png';
     const I = C.images;
-    const src = (name) => I.dir + name + IMG_EXT;
+    const src = (name) => I.dir + name + IMG_EXT + VER;
     const fonts = document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve();
 
     // 1) Solo lo que se ve primero: el sobre. Todo lo demás se descarga mientras ella lo mira,
@@ -1799,7 +1801,7 @@
     if (love.ringOpen && I.ringOpen) love.ringOpen.src = src(I.ringOpen);
     const minis = I.miniEnvelopes || [];
     for (const m of love.minis) if (minis.length) m.img.src = src(minis[m.v % minis.length]);
-    const bg = I.dir + I.background + (webp ? '.webp' : '.jpg');
+    const bg = I.dir + I.background + (webp ? '.webp' : '.jpg') + VER;
     room.style.backgroundImage = 'url("' + bg + '")';
     const rest = [src(I.cassette), src(I.reel), src(I.bouquet), bg];
     if (I.cassetteInside) rest.push(src(I.cassetteInside));

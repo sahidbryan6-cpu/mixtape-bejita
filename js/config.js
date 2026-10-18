@@ -245,8 +245,11 @@ No sé exactamente cómo va a ser todo, pero sí sé con quién lo quiero vivir.
     }
   },
 
-  /* Rutas de las ilustraciones (sin extensión: se usa .webp y, si el navegador no lo soporta, .png/.jpg). */
+  /* Rutas de las ilustraciones (sin extensión: se usa .webp y, si el navegador no lo soporta, .png/.jpg).
+     version: cámbiala cada vez que cambies una imagen, así los teléfonos descargan la nueva y no muestran
+     la que tenían guardada (usa el mismo valor en los ?v= de index.html). */
   images: {
+    version:        "6",
     dir:            "./img/",
     envelopeClosed: "sobre-cerrado",
     envelopeOpen:   "sobre-abierto",
@@ -261,6 +264,6 @@ No sé exactamente cómo va a ser todo, pero sí sé con quién lo quiero vivir.
     background:     "fondo-habitacion",
     flowers:        "flores/flor-",   // flor-01 … flor-20
     flowerCount:    20,
-    redFlowers:     [11, 12]          // peonías carmín: se reparten como acentos
+    redFlowers:     [11, 12]          // rosas color vino: se reparten como acentos
   }
 };
