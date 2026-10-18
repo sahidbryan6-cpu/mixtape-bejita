@@ -119,6 +119,7 @@
      ENVELOPE → BLOOMING
      ========================================================================== */
   let envTweens = [];
+  let flowersReady = Promise.resolve(); // se reemplaza en boot() por la descarga real de las flores
 
   function enterEnvelope() {
     gsap.to([envWrap, tapOpen], { opacity: 1, duration: 0.4, ease: 'power1.out' });
@@ -138,20 +139,26 @@
     envelope.setAttribute('aria-hidden', 'true');
 
     const r = envWrap.getBoundingClientRect();
-    const wall = buildWall({ x: r.left + r.width / 2, y: r.top + r.height / 2 });
-    const tl = gsap.timeline({ onComplete: () => go('FLOWER_WALL') });
-    tl.to(tapOpen, { opacity: 0, duration: 0.2, ease: 'power2.out', overwrite: true }, 0);
-
+    const origin = { x: r.left + r.width / 2, y: r.top + r.height / 2 };
+    gsap.to(tapOpen, { opacity: 0, duration: 0.2, ease: 'power2.out', overwrite: true });
     if (reduceMotion) {
-      tl.set(envOpen, { opacity: 1 }, 0).set(envClosed, { opacity: 0 }, 0);
-      tl.add(wall.tl, 0.35);
-      return;
+      gsap.set(envOpen, { opacity: 1 });
+      gsap.set(envClosed, { opacity: 0 });
+    } else {
+      gsap.to(envOpen, { opacity: 1, duration: 0.18, ease: 'power2.out' });
+      gsap.to(envClosed, { opacity: 0, duration: 0.18, ease: 'power2.out' });
+      gsap.to(envWrap, { scale: 1.06, duration: 0.09, ease: 'power2.out', yoyo: true, repeat: 1 });
     }
-    tl.to(envOpen, { opacity: 1, duration: 0.18, ease: 'power2.out' }, 0)
-      .to(envClosed, { opacity: 0, duration: 0.18, ease: 'power2.out' }, 0)
-      .to(envWrap, { scale: 1.06, duration: 0.09, ease: 'power2.out', yoyo: true, repeat: 1 }, 0)
-      .to(envWrap, { opacity: 0, duration: 0.3, ease: 'power1.out' }, 0.35)
-      .add(wall.tl, 0.35);
+    // Las flores brotan cuando ya están descargadas (con conexión lenta, el sobre abierto espera un momento)
+    const t0 = performance.now();
+    Promise.race([flowersReady, wait(4000)]).then(() => {
+      if (state.screen !== 'BLOOMING') return;
+      const at = Math.max(0, 0.35 - (performance.now() - t0) / 1000);
+      const wall = buildWall(origin);
+      const tl = gsap.timeline({ delay: at, onComplete: () => go('FLOWER_WALL') });
+      if (!reduceMotion) tl.to(envWrap, { opacity: 0, duration: 0.3, ease: 'power1.out' }, 0);
+      tl.add(wall.tl, 0);
+    });
   }
 
   /* ==========================================================================
@@ -1759,8 +1766,24 @@
     IMG_EXT = webp ? '.webp' : '.png';
     const I = C.images;
     const src = (name) => I.dir + name + IMG_EXT;
+    const fonts = document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve();
+
+    // 1) Solo lo que se ve primero: el sobre. Todo lo demás se descarga mientras ella lo mira,
+    //    así las imágenes y la canción no compiten por la conexión antes de tiempo.
+    song.preload = 'none';
+    loadTrack(0);
     envClosed.src = src(I.envelopeClosed);
     envOpen.src = src(I.envelopeOpen);
+    await Promise.race([Promise.all([preload(src(I.envelopeClosed)), preload(src(I.envelopeOpen)), fonts]), wait(6000)]);
+    go('ENVELOPE');
+
+    // 2) Las flores primero (se necesitan al tocar el sobre)...
+    const flowerList = [];
+    for (let n = 1; n <= I.flowerCount; n++) flowerList.push(flowerSrc(n));
+    flowersReady = Promise.all(flowerList.map(preload));
+    await Promise.race([flowersReady, wait(12000)]);
+
+    // 3) ...luego la tarjeta, el panel y la canción
     cassetteImg.src = src(I.cassette);
     if (I.cassetteInside) cassetteInside.src = src(I.cassetteInside);
     else cassetteInside.remove();
@@ -1773,20 +1796,12 @@
     for (const m of love.minis) if (minis.length) m.img.src = src(minis[m.v % minis.length]);
     const bg = I.dir + I.background + (webp ? '.webp' : '.jpg');
     room.style.backgroundImage = 'url("' + bg + '")';
-
-    loadTrack(0);
-
-    const images = [src(I.envelopeClosed), src(I.envelopeOpen), src(I.cassette), src(I.reel), src(I.bouquet), bg];
-    if (I.cassetteInside) images.push(src(I.cassetteInside));
-    for (let n = 1; n <= I.flowerCount; n++) images.push(flowerSrc(n));
-    const meta = new Promise((resolve) => {
-      if (song.readyState >= 1) return resolve();
-      song.addEventListener('loadedmetadata', resolve, { once: true });
-      song.addEventListener('error', resolve, { once: true });
-    });
-    const fonts = document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve();
-    await Promise.race([Promise.all([...images.map(preload), meta, fonts]), wait(8000)]);
-    go('ENVELOPE');
+    const rest = [src(I.cassette), src(I.reel), src(I.bouquet), bg];
+    if (I.cassetteInside) rest.push(src(I.cassetteInside));
+    rest.forEach(preload);
+    // la canción empieza a cargarse ya (si ella aún no le dio play, que también la carga)
+    song.preload = 'auto';
+    if (song.readyState === 0 && audio.status === 'idle') song.load();
   }
 
   // Ayuda para pruebas automáticas (solo lectura)
