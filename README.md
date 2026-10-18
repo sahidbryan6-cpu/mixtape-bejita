@@ -130,7 +130,7 @@ Cada imagen va en dos formatos: `.webp` (la que usa el navegador) y `.png` (o `.
 
 ## 6. Probar en tu computadora
 
-Haz **doble clic en `index.html`**. Hace falta internet para las tipografías; si no hay, la animación igual funciona porque GSAP tiene una copia local en `js/vendor/`.
+Haz **doble clic en `index.html`**. No hace falta internet: las tipografías (`fonts/`) y GSAP (`js/vendor/`) vienen incluidas en el sitio.
 
 También puedes usar un servidor local (así se comporta igual que publicada):
 
