@@ -637,6 +637,11 @@
     updatePositionState();
   });
   song.addEventListener('timeupdate', () => renderProgress(false));
+  // con conexión lenta: avisa que la canción está cargando en vez de parecer trabada
+  song.addEventListener('waiting', () => {
+    if (audio.status === 'playing' && UI.status.loading) statusEl.textContent = UI.status.loading;
+  });
+  song.addEventListener('playing', () => renderAudio());
 
   /* Render del audio (tracklist, línea de estado, reproductor, carretes) */
   const trackRows = [];

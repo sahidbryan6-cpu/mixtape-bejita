@@ -210,6 +210,7 @@ No sé exactamente cómo va a ser todo, pero sí sé con quién lo quiero vivir.
       idle:    "Empieza",
       playing: "Sonando",
       paused:  "En pausa",
+      loading: "Cargando la canción…",
       error:   "No se pudo cargar la canción"
     },
     letterLabel:  "CARTA",
