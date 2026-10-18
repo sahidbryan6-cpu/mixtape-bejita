@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sincronizar letra</title>
+  <meta name="robots" content="noindex">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,500;1,6..72,400&display=swap">
+  <style>
+    :root {
+      --paper: #FCF3E1;
+      --ink: #1F2A22;
+      --ink-soft: #6E665C;
+      --rule: #E6DDCB;
+      --plum: #402033;
+      --plum-deep: #2A1222;
+      --cream: #F6E9DF;
+      --green: #1F3A2A;
+      --focus: #E58FAA;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: #EFE5D3;
+      color: var(--ink);
+      font: 15px/1.5 Inter, system-ui, sans-serif;
+    }
+    main {
+      max-width: 760px;
+      margin: 32px auto;
+      padding: 32px 36px 40px;
+      background: var(--paper);
+      border-radius: 14px;
+      box-shadow: 0 12px 36px rgba(120, 70, 60, .14);
+    }
+    h1 { margin: 0 0 4px; font: 500 34px/1.1 Newsreader, Georgia, serif; }
+    .lead { margin: 0 0 24px; color: var(--ink-soft); }
+    h2 {
+      margin: 28px 0 10px;
+      font: 600 11px/1 Inter, sans-serif;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+    }
+    ol.steps { margin: 0; padding-left: 20px; color: var(--ink-soft); }
+    textarea {
+      width: 100%;
+      min-height: 220px;
+      padding: 14px 16px;
+      border: 1px solid var(--rule);
+      border-radius: 10px;
+      background: #FFFDF8;
+      color: var(--ink);
+      font: italic 17px/1.6 Newsreader, Georgia, serif;
+      resize: vertical;
+    }
+    textarea.code { min-height: 180px; font: 13px/1.5 ui-monospace, Consolas, monospace; font-style: normal; }
+    audio { width: 100%; margin-top: 12px; }
+    .row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-top: 14px; }
+    button {
+      min-height: 44px;
+      padding: 0 20px;
+      border: 0;
+      border-radius: 999px;
+      background: var(--green);
+      color: #fff;
+      font: 600 13px Inter, sans-serif;
+      cursor: pointer;
+    }
+    button.ghost { background: transparent; color: var(--ink); border: 1px solid var(--rule); }
+    button:disabled { opacity: .45; cursor: not-allowed; }
+    button:focus-visible, textarea:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+    .stage {
+      margin-top: 18px;
+      padding: 18px 22px;
+      border-radius: 14px;
+      background: radial-gradient(ellipse at 50% 120%, var(--plum-deep), var(--plum) 70%);
+      color: var(--cream);
+      border: 1px solid rgba(233, 200, 142, .3);
+    }
+    .stage small { display: block; color: #C9A9B6; font: 600 10px/1 Inter, sans-serif; letter-spacing: .18em; text-transform: uppercase; }
+    .stage p { margin: 8px 0 0; font: italic 20px/1.35 Newsreader, Georgia, serif; min-height: 27px; }
+    .stage .next { opacity: .5; font-size: 16px; }
+    .mark {
+      width: 100%;
+      min-height: 64px;
+      margin-top: 14px;
+      font-size: 16px;
+      background: #E7A9BA;
+      color: var(--plum-deep);
+    }
+    .status { color: var(--ink-soft); font-size: 13px; }
+    ul.marks { list-style: none; margin: 12px 0 0; padding: 0; max-height: 240px; overflow: auto; border-top: 1px solid var(--rule); }
+    ul.marks li { display: grid; grid-template-columns: 64px 1fr; gap: 12px; padding: 6px 0; border-bottom: 1px solid var(--rule); font-size: 14px; }
+    ul.marks time { font-variant-numeric: tabular-nums; color: var(--ink-soft); }
+    kbd { padding: 1px 6px; border: 1px solid var(--rule); border-bottom-width: 2px; border-radius: 5px; background: #fff; font: 12px ui-monospace, Consolas, monospace; }
+    @media (max-width: 600px) { main { margin: 0; border-radius: 0; padding: 24px 20px; } }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Sincronizar la letra</h1>
+    <p class="lead">Herramienta para ti (no es parte del regalo). Marca cuándo empieza cada verso mientras escuchas la canción.</p>
+
+    <ol class="steps">
+      <li>Pega la letra en español, <strong>un verso por renglón</strong>.</li>
+      <li>Pulsa <em>Empezar</em>. Cada vez que empiece a cantarse un verso, pulsa <kbd>Espacio</kbd> (o el botón rosa).</li>
+      <li>Si después de un verso viene una parte sin voz, pulsa <kbd>X</kbd> cuando termine de cantarse, para que el subtítulo se oculte.</li>
+      <li>¿Te equivocaste? <kbd>Z</kbd> deshace la última marca y retrocede 3 segundos.</li>
+      <li>Al terminar, descarga <code>letra.js</code> y reemplaza el que está en la carpeta <code>js/</code>.</li>
+    </ol>
+
+    <h2>1 · Letra en español</h2>
+    <textarea id="verses" placeholder="Un verso por renglón…" spellcheck="false"></textarea>
+
+    <h2>2 · Marcar los tiempos</h2>
+    <audio id="audio" controls preload="metadata"></audio>
+    <div class="row">
+      <button id="start" type="button">Empezar</button>
+      <button id="undo" type="button" class="ghost" disabled>Deshacer (Z)</button>
+      <button id="end" type="button" class="ghost" disabled>Fin del verso (X)</button>
+      <span class="status" id="status"></span>
+    </div>
+    <div class="stage" aria-live="polite">
+      <small>Siguiente verso a marcar</small>
+      <p id="nextLine">—</p>
+      <p class="next" id="afterLine"></p>
+    </div>
+    <button id="mark" type="button" class="mark" disabled>Marcar verso (Espacio)</button>
+    <ul class="marks" id="marks"></ul>
+
+    <h2>3 · Resultado</h2>
+    <textarea id="output" class="code" readonly placeholder="Aquí aparece el contenido de letra.js"></textarea>
+    <div class="row">
+      <button id="download" type="button" disabled>Descargar letra.js</button>
+      <button id="copy" type="button" class="ghost" disabled>Copiar</button>
+    </div>
+  </main>
+
+  <script src="js/config.js"></script>
+  <script>
+  (function () {
+    'use strict';
+    var $ = function (id) { return document.getElementById(id); };
+    var audio = $('audio'), versesEl = $('verses'), output = $('output'), marksEl = $('marks');
+    var track = (window.CONFIG && window.CONFIG.tracks && window.CONFIG.tracks[0]) || { n: '01', src: './musica/dream-girl.mp3' };
+    audio.src = track.src;
+
+    var verses = [], marks = [], running = false; // marks: { i, t, fin }
+
+    function fmt(s) { s = Math.max(0, s); var m = Math.floor(s / 60); var r = (s - m * 60).toFixed(2); return m + ':' + (r < 10 ? '0' : '') + r; }
+    function readVerses() {
+      return versesEl.value.split(/\r?\n/).map(function (l) { return l.trim(); }).filter(Boolean);
+    }
+    function render() {
+      var next = verses[marks.length];
+      $('nextLine').textContent = running ? (next || '¡Listo! Ya marcaste todos los versos.') : (verses[0] || '—');
+      $('afterLine').textContent = running && verses[marks.length + 1] ? verses[marks.length + 1] : '';
+      $('mark').disabled = !running || !next;
+      $('undo').disabled = !running || !marks.length;
+      $('end').disabled = !running || !marks.length || marks[marks.length - 1].fin != null;
+      $('status').textContent = running ? (marks.length + ' de ' + verses.length + ' versos marcados') : '';
+      marksEl.innerHTML = '';
+      marks.forEach(function (m) {
+        var li = document.createElement('li');
+        var time = document.createElement('time');
+        time.textContent = fmt(m.t);
+        var span = document.createElement('span');
+        span.textContent = verses[m.i];
+        li.append(time, span);
+        marksEl.appendChild(li);
+      });
+      marksEl.scrollTop = marksEl.scrollHeight;
+      buildOutput();
+    }
+    function buildOutput() {
+      if (!marks.length) { output.value = ''; $('download').disabled = $('copy').disabled = true; return; }
+      var rows = marks.map(function (m, k) {
+        var nxt = marks[k + 1];
+        var fin = m.fin != null ? m.fin : (nxt ? Math.max(m.t + 0.5, nxt.t - 0.1) : m.t + 5);
+        return '    { t: ' + m.t.toFixed(2) + ', fin: ' + fin.toFixed(2) + ', texto: ' + JSON.stringify(verses[m.i]) + ' }, // ' + fmt(m.t);
+      });
+      output.value =
+        '/*\n * LETRA EN ESPAÑOL, sincronizada con la canción (generada con sincronizar.html).\n' +
+        ' * t = segundo en que empieza el verso, fin = segundo en que termina.\n */\n' +
+        'window.LETRAS = {\n  ' + JSON.stringify(track.n || '01') + ': [\n' + rows.join('\n') + '\n  ]\n};\n';
+      $('download').disabled = $('copy').disabled = false;
+    }
+    function markVerse() {
+      if (!running || marks.length >= verses.length) return;
+      var t = Math.max(0, audio.currentTime - 0.08); // compensa el tiempo de reacción
+      var prev = marks[marks.length - 1];
+      if (prev && t <= prev.t + 0.15) {
+        $('status').textContent = 'Espera a que empiece el siguiente verso (va después de ' + fmt(prev.t) + ').';
+        return;
+      }
+      if (prev && prev.fin != null && prev.fin > t) prev.fin = t;
+      marks.push({ i: marks.length, t: t, fin: null });
+      render();
+    }
+    function endVerse() {
+      var last = marks[marks.length - 1];
+      if (!running || !last || last.fin != null) return;
+      last.fin = Math.max(last.t + 0.3, audio.currentTime);
+      render();
+    }
+    function undo() {
+      if (!marks.length) return;
+      var last = marks.pop();
+      var prev = marks[marks.length - 1];
+      if (prev) prev.fin = null;
+      audio.currentTime = Math.max(prev ? prev.t + 0.2 : 0, last.t - 3);
+      render();
+    }
+
+    $('start').addEventListener('click', function () {
+      verses = readVerses();
+      if (!verses.length) { versesEl.focus(); $('status').textContent = 'Primero pega la letra (un verso por renglón).'; return; }
+      marks = [];
+      running = true;
+      audio.currentTime = 0;
+      audio.play();
+      render();
+      $('mark').focus();
+    });
+    $('mark').addEventListener('click', markVerse);
+    $('end').addEventListener('click', endVerse);
+    $('undo').addEventListener('click', undo);
+    document.addEventListener('keydown', function (e) {
+      if (!running || e.target === versesEl || e.target === output) return;
+      if (e.code === 'Space') { e.preventDefault(); markVerse(); }
+      else if (e.key === 'x' || e.key === 'X') { e.preventDefault(); endVerse(); }
+      else if (e.key === 'z' || e.key === 'Z') { e.preventDefault(); undo(); }
+    });
+    $('download').addEventListener('click', function () {
+      var blob = new Blob([output.value], { type: 'application/javascript' });
+      var a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'letra.js';
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+    });
+    $('copy').addEventListener('click', function () {
+      output.select();
+      var done = function () { $('status').textContent = 'Copiado. Pégalo en js/letra.js.'; };
+      if (navigator.clipboard) navigator.clipboard.writeText(output.value).then(done, function () { document.execCommand('copy'); done(); });
+      else { document.execCommand('copy'); done(); }
+    });
+    render();
+  })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,7 @@
+# Sistema
+Thumbs.db
+desktop.ini
+.DS_Store
+# Audio original sin comprimir (el sitio usa el MP3)
+*.wav
+node_modules/
