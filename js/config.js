@@ -249,7 +249,7 @@ No sé exactamente cómo va a ser todo, pero sí sé con quién lo quiero vivir.
      version: cámbiala cada vez que cambies una imagen, así los teléfonos descargan la nueva y no muestran
      la que tenían guardada (usa el mismo valor en los ?v= de index.html). */
   images: {
-    version:        "6",
+    version:        "7",
     dir:            "./img/",
     envelopeClosed: "sobre-cerrado",
     envelopeOpen:   "sobre-abierto",
